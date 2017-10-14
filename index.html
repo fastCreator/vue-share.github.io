@@ -23,11 +23,10 @@ let plugin = (function(){
 	    }
 	  }
 	  listener (type, cb) {
-	    if (this.loop[type]) {
-	      console.error('该事件已被监听')
-	    } else {
-	      this.loop[type] = cb
-	    }
+	  	// 取消消息队列，避免名字冲突时多次触发事件
+	    console.info('已经监听消息名称:',Object.keys(this.loop))
+	    this.loop[type] = cb
+	     
 	  }
 	  sync (that, name, value) {
 	    // 修改data,添加依赖
