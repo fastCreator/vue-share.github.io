@@ -1,0 +1,186 @@
+Skip to content
+This repository
+Search
+Pull requests
+Issues
+Marketplace
+Explore
+ @fastCreator
+ Sign out
+ Unwatch 1
+  Star 0  Fork 0 fastCreator/vue-share
+ Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights  Settings
+Branch: master Find file Copy pathvue-share/demo.html
+a92023e  an hour ago
+@fastCreator fastCreator Create demo.html
+1 contributor
+RawBlameHistory     
+163 lines (156 sloc)  3.16 KB
+<!DOCTYPE html>
+<html>
+<head>
+	<title>VUE实例之间数据同步及通讯</title>
+	<script type="text/javascript" src="https://cdn.bootcss.com/vue/2.4.4/vue.js"></script>
+</head>
+<body>
+    <div id="app1">实例一：value:{{value}}<div @click="change" >点击我给实例二发消息setValue({{value}})</div></div>
+	<div id="app2">实例二：value:{{value}}<div>{{state}}</div></div>
+</body>
+<script type="text/javascript">
+let plugin = (function(){
+	class Share {
+	  constructor () {
+	    this.loop = new Map()
+	    this.props = new Map()
+	  }
+	  send (type, msg) {
+	    let fuc = this.loop[type]
+	    if (fuc) {
+	      fuc(msg)
+	    }
+	  }
+	  listener (type, cb) {
+	    if (this.loop[type]) {
+	      console.error('该事件已被监听')
+	    } else {
+	      this.loop[type] = cb
+	    }
+	  }
+	  sync (that, name, value) {
+	    // 修改data,添加依赖
+	    let data = that.$options.data
+	    if (typeof (data) === 'function') {
+	      data = data()
+	    }
+	    data[name] = value
+	    that.$options.data = data
+	      // 摧毁删除
+	    that.$options.destroyd = function () {
+	      let index = this.props[name].indexOf(that)
+	      this.props[name].splice(index, 1)
+	      if (that.$options.destroyd) {
+	        that.$options.destroyd.bind(this)()
+	      }
+	    }
+	      // 保存oldset
+	    that.$nextTick( () =>{
+	      const property = Object.getOwnPropertyDescriptor(that, name)
+	      const oldSet = property.set
+	        // 添加oldSet
+	      if (!this.props[name]) {
+	        this.props[name] = []
+	      }
+	      this.props[name].push({
+	        context: that,
+	        oldSet: oldSet
+	      })
+	      property.set =  (v)=>{
+	        this._run(that, name, v)
+	        oldSet.bind(that)(v)
+	      }
+	      Object.defineProperty(that, name, property)
+	    })
+	  }
+	  _run (that, name, v) {
+	    this.props[name].forEach(function (item) {
+	      if (item.context !== that) {
+	        item.oldSet.bind(item.context)(v)
+	      }
+	    })
+	  }
+}
+return {
+  install: function (Vue) {
+    let s = new Share()
+    Vue.mixin({
+      beforeCreate: function () {
+        this.$sync = function(prop,value){
+        	s.sync(this,prop,value)
+        }
+        this.$send = function(type,value){
+        	s.send(type,value)
+        } 
+        this.$listener = function(type,cb){
+        	s.listener(type,cb)
+        }     
+      }
+    })
+  }
+}
+})()
+// 使用插件
+Vue.use(plugin)
+new Vue({
+	el:'#app1',
+	beforeCreate(){
+		this.$sync('value',2)
+	},
+	data(){ 
+		return {
+			b:1
+		}
+	},
+	updated(){
+		console.log('update')
+	},
+	computed:{
+		 cp(){
+		 	return '计算属性同步:'+this.value
+		 }
+	},
+	methods:{
+		change(){
+			this.$send('setValue',this.value)
+		}
+	}
+})
+new Vue({
+	el:'#app2',
+	beforeCreate(){
+		this.$sync('value',2)
+	},
+	created(){
+		this.$listener('setValue',(v)=>{
+			this.state = `消息已接收(value:${v}),3秒后同步数据,使value加1等于${v+1}`
+			setTimeout(()=>{
+				this.value = v+1
+				this.state = '数据已同步'
+			},3000)
+		})
+	},
+	data(){ 
+		return {
+			state:'等待接受消息'
+		}
+	},
+	computed:{
+		 a(){
+		 	return this.value
+		 }
+	},
+	updated(){
+		console.log('update')
+	},
+	destroyd(){
+		console.log('destroy')
+	},
+	methods:{
+		no(){
+			this.show =false
+		}
+	}
+})
+</script>
+</html>
+© 2017 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+API
+Training
+Shop
+Blog
+About
