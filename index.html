@@ -75,17 +75,15 @@ let plugin = (function(){
 return {
   install: function (Vue) {
     let s = new Share()
-    Vue.prototype.$share.={
-    	sync:function(prop,value){
+    Vue.prototype.$sync = function(prop,value){
         	s.sync(this,prop,value)
-    	},
-    	send:function(type,value){
-        	s.send(type,value)
-    	},
-    	listener: function(type,cb){
-        	s.listener(type,cb)
-    	}
     }
+    Vue.prototype.$send = function(type,value){
+        	s.send(type,value)
+    } 
+    Vue.prototype.$listener = function(type,cb){
+        	s.listener(type,cb)
+        } 
   }
 }
 })()
@@ -96,7 +94,7 @@ Vue.use(plugin)
 new Vue({
 	el:'#app1',
 	beforeCreate(){
-		this.$share.sync('value',2)
+		this.$sync('value',2)
 	},
 	data(){ 
 		return {
@@ -113,7 +111,7 @@ new Vue({
 	},
 	methods:{
 		change(){
-			this.$share.send('setValue',this.value)
+			this.$send('setValue',this.value)
 		}
 	}
 })
@@ -121,7 +119,7 @@ new Vue({
 new Vue({
 	el:'#app2',
 	beforeCreate(){
-		this.$share.sync('value',2)
+		this.$sync('value',2)
 	},
 	created(){
 		this.$listener('setValue',(v)=>{
