@@ -75,15 +75,15 @@ let plugin = (function(){
 return {
   install: function (Vue) {
     let s = new Share()
-    Vue.prototype.$sync = function(prop,value){
+    Vue.prototype.$shareSync = function(prop,value){
         	s.sync(this,prop,value)
     }
-    Vue.prototype.$send = function(type,value){
+    Vue.prototype.$shareSend = function(type,value){
         	s.send(type,value)
     } 
-    Vue.prototype.$listener = function(type,cb){
+    Vue.prototype.$shareListener = function(type,cb){
         	s.listener(type,cb)
-        } 
+    }
   }
 }
 })()
@@ -94,7 +94,7 @@ Vue.use(plugin)
 new Vue({
 	el:'#app1',
 	beforeCreate(){
-		this.$sync('value',2)
+		this.$shareSync('value',2)
 	},
 	data(){ 
 		return {
@@ -111,7 +111,7 @@ new Vue({
 	},
 	methods:{
 		change(){
-			this.$send('setValue',this.value)
+			this.$shareSend('setValue',this.value)
 		}
 	}
 })
@@ -119,10 +119,10 @@ new Vue({
 new Vue({
 	el:'#app2',
 	beforeCreate(){
-		this.$sync('value',2)
+		this.$shareSync('value',2)
 	},
 	created(){
-		this.$listener('setValue',(v)=>{
+		this.$shareListener('setValue',(v)=>{
 			this.state = `消息已接收(value:${v}),3秒后同步数据,使value加1等于${v+1}`
 			setTimeout(()=>{
 				this.value = v+1
