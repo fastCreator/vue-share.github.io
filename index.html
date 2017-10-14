@@ -1,21 +1,3 @@
-Skip to content
-This repository
-Search
-Pull requests
-Issues
-Marketplace
-Explore
- @fastCreator
- Sign out
- Unwatch 1
-  Star 0  Fork 0 fastCreator/vue-share
- Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights  Settings
-Branch: master Find file Copy pathvue-share/demo.html
-a92023e  an hour ago
-@fastCreator fastCreator Create demo.html
-1 contributor
-RawBlameHistory     
-163 lines (156 sloc)  3.16 KB
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,6 +9,7 @@ RawBlameHistory
 	<div id="app2">实例二：value:{{value}}<div>{{state}}</div></div>
 </body>
 <script type="text/javascript">
+
 let plugin = (function(){
 	class Share {
 	  constructor () {
@@ -108,8 +91,10 @@ return {
   }
 }
 })()
+
 // 使用插件
 Vue.use(plugin)
+
 new Vue({
 	el:'#app1',
 	beforeCreate(){
@@ -134,6 +119,7 @@ new Vue({
 		}
 	}
 })
+
 new Vue({
 	el:'#app2',
 	beforeCreate(){
@@ -146,6 +132,7 @@ new Vue({
 				this.value = v+1
 				this.state = '数据已同步'
 			},3000)
+
 		})
 	},
 	data(){ 
@@ -170,17 +157,6 @@ new Vue({
 		}
 	}
 })
+
 </script>
 </html>
-© 2017 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-API
-Training
-Shop
-Blog
-About
